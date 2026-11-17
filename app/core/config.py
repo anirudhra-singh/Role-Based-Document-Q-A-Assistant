@@ -1,5 +1,5 @@
 from functools import lru_cache
-
+from pydantic import SecretStr
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -8,6 +8,7 @@ class Settings(BaseSettings):
     APP_VERSION: str = "1.0.0"
     environment: str = "development"
     debug: bool = False  
+    database_url: SecretStr
 
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
