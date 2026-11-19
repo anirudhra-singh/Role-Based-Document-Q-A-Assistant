@@ -1,0 +1,1 @@
+ROLES = ("employee", "manager", "hr", "executive", "admin")
