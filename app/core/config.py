@@ -14,6 +14,7 @@ class Settings(BaseSettings):
     secret_key: SecretStr  
     access_token_expire_minutes: int = 15
     refresh_token_expire_days: int = 7
+    rate_limit_enabled: bool = True
 
     seed_demo_password: SecretStr | None = None  
 

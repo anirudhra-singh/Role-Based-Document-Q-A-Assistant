@@ -1,7 +1,8 @@
-from fastapi import APIRouter, Depends, HTTPException, Response
+from fastapi import APIRouter, Depends, HTTPException, Request, Response
 from sqlalchemy.orm import Session
 
 from app.core.config import get_settings
+from app.core.rate_limit import LOGIN_LIMIT, REFRESH_LIMIT, limiter
 from app.dependencies import get_current_user, get_db
 from app.models.user_model import User
 from app.schemas.auth_schemas import LoginRequest, RefreshRequest, TokenResponse
@@ -21,7 +22,8 @@ def _token_response(tokens: tuple[str, str]) -> TokenResponse:
 
 
 @router.post("/login", response_model=TokenResponse)
-def login(body: LoginRequest, db: Session = Depends(get_db)) -> TokenResponse:
+@limiter.limit(LOGIN_LIMIT)
+def login(request: Request, body: LoginRequest, db: Session = Depends(get_db)) -> TokenResponse:
     tokens = login_user(db, body.email, body.password)
     if tokens is None:
         raise HTTPException(
@@ -33,7 +35,8 @@ def login(body: LoginRequest, db: Session = Depends(get_db)) -> TokenResponse:
 
 
 @router.post("/refresh", response_model=TokenResponse)
-def refresh(body: RefreshRequest, db: Session = Depends(get_db)) -> TokenResponse:
+@limiter.limit(REFRESH_LIMIT)
+def refresh(request: Request, body: RefreshRequest, db: Session = Depends(get_db)) -> TokenResponse:
     tokens = rotate_refresh_token(db, body.refresh_token)
     if tokens is None:
         raise HTTPException(
